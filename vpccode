@@ -1,10 +1,14 @@
-  Resources:
-    myVPC:
-      Type: AWS::EC2::VPC
-      Properties:
-        CidrBlock: 10.0.0.0/16
-        EnableDnsSupport: 'true'
-        EnableDnsHostNames: 'true'
-        Tags:
-          - Key: Name
-            Value: vpc0707
+  AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to create a VPC with a public subnet, Internet gateway, and route table.
+
+Resources:
+  # VPC
+  MyVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: MyVPC
