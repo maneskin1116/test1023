@@ -1,39 +1,402 @@
-  AWSTemplateFormatVersion: '2010-09-09'
-Description: CloudFormation template to create a VPC with a public subnet, Internet gateway, and route table.
+# AWSTemplateFormatVersion: 2010-09-09
+# Description: |
+  
+  Parameters:
+    keypair:
+      Description: Select your keypair
+      Type: AWS::EC2::KeyPair::KeyName
+  
+# Metadata:
+  
+# Mappings:
+  
+# Conditions:
+  
+  Resources:
+    myVPC:
+      Type: AWS::EC2::VPC
+      Properties:
+        CidrBlock: 10.0.0.0/16
+        EnableDnsSupport: 'true'
+        EnableDnsHostNames: 'true'
+        Tags:
+          - Key: Name
+            Value: vpc0707
 
-Resources:
-  # VPC
-  MyVPC:
-    Type: AWS::EC2::VPC
-    Properties:
-      CidrBlock: 10.0.0.0/16
-      EnableDnsSupport: true
-      EnableDnsHostnames: true
-      Tags:
+    myIGW:
+      Type: AWS::EC2::InternetGateway
+      Properties:
+        Tags:
         - Key: Name
-          Value: MyVPC---111
-  MyPublicSubnet:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref MyVPC
-      CidrBlock: 10.0.1.0/24
-      MapPublicIpOnLaunch: true
-      AvailabilityZone: ap-northeast-1a
-      Tags:
-        - Key: Name
-          Value: PublicSubnet
+          Value: igw0707
 
-  # Internet Gateway
-  MyInternetGateway:
-    Type: AWS::EC2::InternetGateway
-    Properties:
-      Tags:
-        - Key: Name
-          Value: MyInternetGateway
 
-  # Attach Internet Gateway to VPC
-  AttachGateway:
-    Type: AWS::EC2::VPCGatewayAttachment
-    Properties:
-      VpcId: !Ref MyVPC
-      InternetGatewayId: !Ref MyInternetGateway
+    AttachGateway:
+      Type: AWS::EC2::VPCGatewayAttachment
+      Properties:
+        VpcId:
+          Ref: myVPC
+        InternetGatewayId:
+          Ref: myIGW
+
+    mySubnetpub1a:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId:
+          Ref: myVPC
+        CidrBlock: 10.0.0.0/24
+        AvailabilityZone: "ap-northeast-1a"
+        Tags:
+        - Key: Name
+          Value: subnet-pub1a     
+
+
+    mySubnetpri1a:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId:
+          Ref: myVPC
+        CidrBlock: 10.0.1.0/24
+        AvailabilityZone: "ap-northeast-1a"
+        Tags:
+        - Key: Name
+          Value: subnet-pri1a 
+
+    mySubnetpub1c:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId:
+          Ref: myVPC
+        CidrBlock: 10.0.2.0/24
+        AvailabilityZone: "ap-northeast-1c"
+        Tags:
+        - Key: Name
+          Value: subnet-pub1c  
+
+    mySubnetpri1c:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId:
+          Ref: myVPC
+        CidrBlock: 10.0.3.0/24
+        AvailabilityZone: "ap-northeast-1c"
+        Tags:
+        - Key: Name
+          Value: subnet-pri1c      
+  
+
+    myRTbpub:
+      Type: AWS::EC2::RouteTable
+      Properties:
+        VpcId:  
+          Ref: myVPC
+        Tags:
+        - Key: Name
+          Value: rtb-pub 
+
+
+
+    myRTbpri1a:
+      Type: AWS::EC2::RouteTable
+      Properties:
+        VpcId:  
+          Ref: myVPC
+        Tags:
+        - Key: Name
+          Value: rtb-pri1a  
+
+    myRTbpri1c:
+      Type: AWS::EC2::RouteTable
+      Properties:
+        VpcId:  
+          Ref: myVPC
+        Tags:
+        - Key: Name
+          Value: rtb-pri1c 
+
+
+    myrtbpub1aAssociation:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId:
+          Ref: mySubnetpub1a
+        RouteTableId:
+          Ref: myRTbpub 
+
+    myrtbpub1cAssociation:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId:
+          Ref: mySubnetpub1c
+        RouteTableId:
+          Ref: myRTbpub   
+
+    myrtbpri1aAssociation:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId:
+          Ref: mySubnetpri1a
+        RouteTableId:
+          Ref: myRTbpri1a
+     
+
+    myrtbpri1cAssociation:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId:
+          Ref: mySubnetpri1c
+        RouteTableId:
+          Ref: myRTbpri1c
+             
+
+    myRouteIGw:
+      Type: AWS::EC2::Route
+      # DependsOn: GatewayToInternet
+      Properties:
+        RouteTableId:
+          Ref: myRTbpub
+        DestinationCidrBlock: 0.0.0.0/0
+        GatewayId:
+          Ref: myIGW
+
+    myNGw1a:
+      Type: AWS::EC2::NatGateway
+      Properties:
+        AllocationId: !GetAtt NATGatewayEIP1a.AllocationId
+        SubnetId: !Ref mySubnetpub1a
+        Tags:
+        - Key: Name
+          Value: ngw-pri1a
+
+    NATGatewayEIP1a:
+      Type: AWS::EC2::EIP
+      Properties:
+          Domain: myVPC
+
+    RouteNATGateway1a:
+      # DependsOn: NATGateway
+      Type: AWS::EC2::Route
+      Properties:
+        RouteTableId: !Ref myRTbpri1a
+        DestinationCidrBlock: '0.0.0.0/0'
+        NatGatewayId: !Ref myNGw1a  
+
+    myNGw1c:
+      Type: AWS::EC2::NatGateway
+      Properties:
+        AllocationId: !GetAtt NATGatewayEIP1c.AllocationId
+        SubnetId: !Ref mySubnetpub1a
+        Tags:
+        - Key: Name
+          Value: ngw-pri1a
+
+    NATGatewayEIP1c:
+      Type: AWS::EC2::EIP
+      Properties:
+          Domain: myVPC
+
+    RouteNATGateway1c:
+      # DependsOn: NATGateway
+      Type: AWS::EC2::Route
+      Properties:
+        RouteTableId: !Ref myRTbpri1c
+        DestinationCidrBlock: '0.0.0.0/0'
+        NatGatewayId: !Ref myNGw1c 
+
+
+
+
+    sgWeb:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: for web
+        VpcId: !Ref myVPC
+        SecurityGroupIngress:
+          - IpProtocol: tcp
+            FromPort: 22
+            ToPort: 22
+            CidrIp: 0.0.0.0/0
+          - IpProtocol: tcp
+            FromPort: 80
+            ToPort: 80
+            SourceSecurityGroupId: !Ref albsg
+        SecurityGroupEgress:
+          - IpProtocol: -1
+            FromPort: -1
+            ToPort: -1
+            CidrIp: 0.0.0.0/0
+        Tags:
+          - Key: Name
+            Value: sg-web 
+
+    albsg:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: for alb
+        VpcId: !Ref myVPC
+        SecurityGroupIngress:
+          - IpProtocol: tcp
+            FromPort: 80
+            ToPort: 80
+            CidrIp: 0.0.0.0/0
+        SecurityGroupEgress:
+          - IpProtocol: -1
+            FromPort: -1
+            ToPort: -1
+            CidrIp: 0.0.0.0/0  
+
+    myWebpc1a: 
+      Type: AWS::EC2::Instance
+      Properties: 
+        ImageId: "ami-03350e4f182961c7f"
+        InstanceType: "t2.micro"
+        KeyName: 
+          Ref: keypair
+        SubnetId: !Ref mySubnetpri1a
+        SecurityGroupIds: 
+          - Ref: sgWeb
+        UserData:
+          Fn::Base64: |
+            #!/bin/bash
+            yum update -y
+            yum install -y httpd
+            systemctl start httpd
+            systemctl enable httpd
+            echo "pc 1a Server!" > /var/www/html/index.html
+        Tags:
+          - Key: Name
+            Value: ec2-Web-pc-1a
+
+    myWebpc1c: 
+      Type: AWS::EC2::Instance
+      Properties: 
+        ImageId: "ami-03350e4f182961c7f"
+        InstanceType: "t2.micro"
+        KeyName: 
+          Ref: keypair
+        SubnetId: !Ref mySubnetpri1c
+        SecurityGroupIds: 
+          - Ref: sgWeb
+        UserData:
+          Fn::Base64: |
+            #!/bin/bash
+            yum update -y
+            yum install -y httpd
+            systemctl start httpd
+            systemctl enable httpd
+            echo "pc 1c Server!" > /var/www/html/index.html
+        Tags:
+          - Key: Name
+            Value: ec2-Web-pc-1c
+    myWebmobile1a: 
+      Type: AWS::EC2::Instance
+      Properties: 
+        ImageId: "ami-03350e4f182961c7f"
+        InstanceType: "t2.micro"
+        KeyName: 
+          Ref: keypair
+        SubnetId: !Ref mySubnetpri1a
+        SecurityGroupIds: 
+          - Ref: sgWeb
+        UserData:
+          Fn::Base64: |
+            #!/bin/bash
+            yum update -y
+            yum install -y httpd
+            systemctl start httpd
+            systemctl enable httpd
+            echo "mobile 1a Server!" > /var/www/html/index.html
+        Tags:
+          - Key: Name
+            Value: ec2-Web-mobile-1a
+
+    myWebmobile1c: 
+      Type: AWS::EC2::Instance
+      Properties: 
+        ImageId: "ami-03350e4f182961c7f"
+        InstanceType: "t2.micro"
+        KeyName: 
+          Ref: keypair
+        SubnetId: !Ref mySubnetpri1c
+        SecurityGroupIds: 
+          - Ref: sgWeb
+        UserData:
+          Fn::Base64: |
+            #!/bin/bash
+            yum update -y
+            yum install -y httpd
+            systemctl start httpd
+            systemctl enable httpd
+            echo "mobile 1c Server!" > /var/www/html/index.html
+        Tags:
+          - Key: Name
+            Value: ec2-Web-mobile-1c
+
+
+    MyTargetGrouppc:
+      Type: AWS::ElasticLoadBalancingV2::TargetGroup
+      Properties:
+        HealthCheckEnabled: true
+        Name: Mytgp-pc
+        TargetType: instance
+        Port: 80
+        Protocol: HTTP
+        VpcId : !Ref myVPC
+        Targets:
+        - Id: !Ref myWebpc1a
+        - Id: !Ref myWebpc1c
+
+    MyTargetGroupmobile:
+      Type: AWS::ElasticLoadBalancingV2::TargetGroup
+      Properties:
+        HealthCheckEnabled: true
+        Name: Mytgp-mobile
+        TargetType: instance
+        Port: 80
+        Protocol: HTTP
+        VpcId : !Ref myVPC
+        Targets:
+        - Id: !Ref myWebmobile1a
+        - Id: !Ref myWebmobile1c
+
+    
+    HTTPlistener:
+      Type: AWS::ElasticLoadBalancingV2::Listener
+      Properties:
+        DefaultActions:
+          - Type: forward
+            TargetGroupArn: !Ref MyTargetGrouppc
+        LoadBalancerArn: !Ref Myalb
+        Port: 80
+        Protocol: "HTTP"
+        
+    Myalb:
+      Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+      Properties:
+        Name: alb-0707
+        SecurityGroups: 
+          - !Ref albsg
+        Subnets: 
+          - !Ref mySubnetpub1a
+          - !Ref mySubnetpub1c
+
+    mobileListenerRule:
+      Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+      Properties:
+        Actions:
+          - Type: forward
+            TargetGroupArn: !Ref MyTargetGroupmobile
+        Conditions:
+          - Field: http-header
+            HttpHeaderConfig:
+              HttpHeaderName: User-Agent
+              Values:
+                - '*iPhone*'
+                - '*Adroid*'
+        ListenerArn: !Ref HTTPlistener
+        Priority: 1
+
+    
+# Transform:
+  
+# Outputs:
