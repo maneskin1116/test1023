@@ -11,7 +11,7 @@ Resources:
       EnableDnsHostnames: true
       Tags:
         - Key: Name
-          Value: MyVPC
+          Value: MyVPC---111
   MyPublicSubnet:
     Type: AWS::EC2::Subnet
     Properties:
