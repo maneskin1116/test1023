@@ -252,7 +252,7 @@
         ImageId: "ami-03350e4f182961c7f"
         InstanceType: "t2.micro"
         KeyName: 
-          Ref: zcjssj
+          Ref: keypair
         SubnetId: !Ref mySubnetpri1a
         SecurityGroupIds: 
           - Ref: sgWeb
@@ -274,7 +274,7 @@
         ImageId: "ami-03350e4f182961c7f"
         InstanceType: "t2.micro"
         KeyName: 
-          Ref: zcjssj
+          Ref: keypair
         SubnetId: !Ref mySubnetpri1c
         SecurityGroupIds: 
           - Ref: sgWeb
@@ -295,7 +295,7 @@
         ImageId: "ami-03350e4f182961c7f"
         InstanceType: "t2.micro"
         KeyName: 
-          Ref: zcjssj
+          Ref: keypair
         SubnetId: !Ref mySubnetpri1a
         SecurityGroupIds: 
           - Ref: sgWeb
@@ -317,7 +317,7 @@
         ImageId: "ami-03350e4f182961c7f"
         InstanceType: "t2.micro"
         KeyName: 
-          Ref: zcjssj
+          Ref: keypair
         SubnetId: !Ref mySubnetpri1c
         SecurityGroupIds: 
           - Ref: sgWeb
