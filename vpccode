@@ -1,10 +1,10 @@
 # AWSTemplateFormatVersion: 2010-09-09
 # Description: |
   
- # Parameters:
-   # keypair:
-     # Description: Select your keypair
-      #Type: AWS::EC2::KeyPair::KeyName
+  Parameters:
+    keypair:
+      Description: Select your keypair
+      Type: AWS::EC2::KeyPair::KeyName
   
 # Metadata:
   
