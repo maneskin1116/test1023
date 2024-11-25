@@ -5,6 +5,7 @@
     keypair:
       Description: Select your keypair
       Type: AWS::EC2::KeyPair::KeyName
+      Value: zcjssj
   
 # Metadata:
   
