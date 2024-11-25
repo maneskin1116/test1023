@@ -1,10 +1,10 @@
 # AWSTemplateFormatVersion: 2010-09-09
 # Description: |
   
-  Parameters:
-    keypair:
-      Description: Select your keypair
-      Type: AWS::EC2::KeyPair::KeyName
+ # Parameters:
+   # keypair:
+     # Description: Select your keypair
+      #Type: AWS::EC2::KeyPair::KeyName
   
 # Metadata:
   
@@ -251,7 +251,7 @@
         ImageId: "ami-03350e4f182961c7f"
         InstanceType: "t2.micro"
         KeyName: 
-          Ref: keypair
+          Ref: zcjssj
         SubnetId: !Ref mySubnetpri1a
         SecurityGroupIds: 
           - Ref: sgWeb
@@ -273,7 +273,7 @@
         ImageId: "ami-03350e4f182961c7f"
         InstanceType: "t2.micro"
         KeyName: 
-          Ref: keypair
+          Ref: zcjssj
         SubnetId: !Ref mySubnetpri1c
         SecurityGroupIds: 
           - Ref: sgWeb
@@ -294,7 +294,7 @@
         ImageId: "ami-03350e4f182961c7f"
         InstanceType: "t2.micro"
         KeyName: 
-          Ref: keypair
+          Ref: zcjssj
         SubnetId: !Ref mySubnetpri1a
         SecurityGroupIds: 
           - Ref: sgWeb
@@ -316,7 +316,7 @@
         ImageId: "ami-03350e4f182961c7f"
         InstanceType: "t2.micro"
         KeyName: 
-          Ref: keypair
+          Ref: zcjssj
         SubnetId: !Ref mySubnetpri1c
         SecurityGroupIds: 
           - Ref: sgWeb
