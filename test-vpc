@@ -6,12 +6,12 @@ Resources:
       Tags:
       - Key: Name
         Value: vpc-template
-        
+
   mySubnet:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref myVPC
-      CidrBlock: 10.3.0.0/24
+      CidrBlock: 10.3.1.0/24
       AvailabilityZone: "ap-northeast-1a"
       Tags:
       - Key: Name
